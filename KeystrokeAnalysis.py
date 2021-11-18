@@ -177,3 +177,55 @@ def save(fname, regscreen):
     f.close()
     regscreen.destroy()
     return
+
+    def register():
+    global trained
+    global tbutton
+    global usr
+    global tmsg
+    regscr = Tk()
+    regscr.title('Register')
+    Message(regscr, text='').grid(row=0,columnspan=5)
+    Label(regscr, text="Enter Username").grid(row=1, column=0,columnspan=1)
+    usr = Entry(regscr)
+    usr.grid(row=1, column=1, columnspan=3, padx=50)
+    Label(regscr, text="Enter password").grid(row=2, column=0, columnspan=1)
+    regpassword = Entry(regscr)
+    regpassword.grid(row=2, column=1, columnspan=3, padx=50)
+    regpassword.bind('<KeyPress>',keyd)
+    regpassword.bind('<KeyRelease>',keyu)
+    tbutton = Button(regscr, text="Train", command=lambda: train(regpassword, regscr))
+    tbutton.grid(row=3, column=1, sticky=EW, padx=10,pady=10)
+    tmsg = Label(regscr, text="Trainings completed (out of 10):"+str(trained))
+    tmsg.grid(row=4, column=0,columnspan=5, sticky=EW)
+    regscr.mainloop()
+    return
+
+def login_screen():
+    screen = Tk()
+    screen.title("Login")
+    Message(screen, text='').grid(row=0,columnspan=10)
+    Label(screen, text="Enter Username").grid(row=1, column=0,columnspan=1)
+    username = Entry(screen)
+    username.grid(row=1, column=1, columnspan=3, padx=50)
+    Label(screen, text="Enter password").grid(row=2, column=0, columnspan=1)
+    password = Entry(screen)
+    password.grid(row=2, column=1, columnspan=3, padx=50)
+    password.bind('<KeyPress>',keyd)
+    password.bind('<KeyRelease>',keyu)
+    Button(screen, text="Authenticate", command= lambda: authenticate(username.get(),password.get(),screen)).grid(row=5, column=1, sticky=EW, padx=10,pady=10)
+    Label(screen, text='Not registered?').grid(row=6,column=0,sticky=E, columnspan=1, pady=1)
+    Button(screen, text="Register", command=register).grid(row=6, column=1, sticky=N, pady=10)
+    screen.mainloop()
+    return
+
+def success_screen(screen):
+    screen.destroy()
+    plt.gcf().canvas.set_window_title('Password and rhythm both verified for user: ' +usr+ '  LOGIN SUCCESSFUL')
+    plt.title('Typing Rhythm - lines are training data, dots are current attempt')
+    tmp=[plt.plot(x) for x in matrix]
+    plt.plot(range(2*len(clean(current_kd))-1),transform(current_kd,current_ku),'ro')
+    plt.xlabel('Series of Hold and Flight times \n(hold time of 1st char followed by flight time between 1st and 2nd char and so on..)')
+    plt.ylabel('Duration (in milliseconds)')
+    plt.show()
+    return
