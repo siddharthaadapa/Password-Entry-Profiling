@@ -91,3 +91,89 @@ def train(entry, parent):
         tbutton=Button(parent, text="register", command=lambda: save(usr.get(),parent))
         tbutton.grid(row=3, column=1, sticky=EW, padx=10,pady=10)
     return
+
+def keyd(event):
+    current_kd.append((event.keysym,event.time))
+    print(str(current_kd))
+    return
+
+def keyu(event):
+    current_ku.append((event.keysym,event.time))
+    print(str(current_ku))
+    return
+
+def clean(vector,up=False):
+    y=[]
+    for x in vector:
+        if(x[0]=='Tab' or x[0]=='Enter' or x[0]=='Return'):
+            continue
+        elif(x[0]=='BackSpace'):
+            if(len(y) !=0):
+                del y[-1]
+        else:
+            y.append(x)
+    if up:
+        for i in range(len(y)-1):
+            if(y[i+1][0] in ['Shift_L', 'Shift_R']):
+                y[i], y[i+1] = y[i+1], y[i]
+    return y
+
+def authenticate(username, password, screen):
+    global usr
+    usr=username
+    if not username or not password:
+        return failure_screen(screen)
+    try:
+        f=open(username,'r')
+    except Exception:
+        return failure_screen(screen)
+    else:
+        actual = f.readline().strip()
+        rhythm=False
+        match = actual==password
+        if not match:
+            return failure_screen(screen)
+        else:
+            rhythm = verify_vector(username, transform(current_kd,current_ku))
+        return success_screen(screen) if rhythm else failure_screen(screen)
+
+def transform(vector1, vector2):
+    global pwd
+    result=[]
+    vector1=clean(vector1)
+    vector2=clean(vector2,True)
+    print("vector1 ",str(vector1))
+    print("vector2 ",str(vector2))
+    pwd = list(zip(*vector1))[0]
+    hold = [vector2[i][1]-vector1[i][1] for i in range(len(vector1))]
+    flight = [vector1[x+1][1]-vector2[x][1] for x in range(len(vector1)-1)]
+    print('hold ',str(hold))
+    print('flight ',str(flight))
+    for x in range(len(vector1)-1):
+        result.append(hold[x])
+        result.append(flight[x])
+    result.append(hold[len(vector1)-1])
+    print('Password is: '+str(pwd))
+    print('transformed vector is: '+str(result))
+    return result
+
+def save(fname, regscreen):
+    if not fname:
+        return reg_failure_screen(regscreen)
+    f = open(fname,'w')
+    f.write(''.join(pwd))
+    f.close()
+    f=open(fname+'.vector','w')
+    f.write(str(classification_vector)+'\n')
+    f.write(str((150*np.amax(get_inverse_cov(classification_vector)))**0.5))
+    f.close()
+    f=open(fname+'.vector-overlap','w')
+    f.write(str(c_vector_overlap)+'\n')
+    f.write(str((150*np.amax(get_inverse_cov( c_vector_overlap)))**0.5))
+    f.close()
+    f=open(fname+'.vector-miss','w')
+    f.write(str(c_vector_undetected)+'\n')
+    f.write(str((150*np.amax(get_inverse_cov(c_vector_undetected)))**0.5))
+    f.close()
+    regscreen.destroy()
+    return
