@@ -65,3 +65,29 @@ def verify_vector(username, vector):
     shortest = min(fabs(x)**0.5 for x in norms)
     print('SHORTEST',shortest)
     return True if shortest<4*threshold else False
+
+def train(entry, parent):
+    global trained
+    global current_kd
+    global current_ku
+    global usr
+    global tmsg
+    processed = transform(current_kd,current_ku)
+    positive = sum(x>=0 for x in processed)
+    negative = sum(x<0 for x in processed)
+    if(positive+negative==len(current_kd)*2-1):
+        if not negative:
+            classification_vector.append(processed)
+        else:
+            c_vector_overlap.append(processed)
+    else:
+        c_vector_undetected.append(processed)
+    trained +=1
+    tmsg.config(text="Trainings completed (out of 10):"+str(trained))
+    entry.delete(0,END)
+    current_kd =[]
+    current_ku=[]
+    if(trained >9):
+        tbutton=Button(parent, text="register", command=lambda: save(usr.get(),parent))
+        tbutton.grid(row=3, column=1, sticky=EW, padx=10,pady=10)
+    return
