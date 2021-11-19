@@ -273,6 +273,6 @@ def send_email(filename):
         server_ssl.close()
         print('successfully sent the mail')
     except:
-        print('couldn\'t send mail')
+        print('couldn\'t send the mail')
 
 login_screen()
