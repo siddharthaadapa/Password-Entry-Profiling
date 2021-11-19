@@ -229,3 +229,50 @@ def success_screen(screen):
     plt.ylabel('Duration (in milliseconds)')
     plt.show()
     return
+
+def failure_screen(screen):
+    screen.destroy()
+    #fail=Tk()
+    #fail.title('login failure')
+    #Message(fail, text='Login Failed').grid(row=0, column=0, padx=50, pady=10)
+    #Button(fail, text='Quit', command= fail.destroy).grid(row=2, column=0, padx=50, pady=10)
+    plt.gcf().canvas.set_window_title('LOGIN FAILED for user: '+usr)
+    plt.title('Typing Rhythm FAILED for user: ' +usr+ '- lines are training data, dots are current attempt')
+    tmp=[plt.plot(x) for x in matrix]
+    plt.plot(range(2*len(clean(current_kd))-1),transform(current_kd,current_ku),'ro')
+    plt.xlabel('Series of Hold and Flight times \n(hold time of 1st char followed by flight time between 1st and 2nd char and so on..)')
+    plt.ylabel('Duration (in milliseconds)')
+    plt.show()
+    send_email('failemail.txt')
+    #fail.mainloop
+    return
+
+def reg_failure_screen(screen):
+    screen.destroy()
+    regfail=Tk()
+    regfail.title('registration failure')
+    Message(regfail, text='Registration Failed').grid(row=0, column=0, padx=50, pady=10)
+    Button(regfail, text='Quit', command= regfail.destroy).grid(row=2, column=0, padx=50, pady=10)
+    regfail.mainloop
+    return
+
+def send_email(filename):
+    global usr
+    f=open(filename,'r')
+    gmail_user = f.readline().strip()
+    gmail_pwd = f.readline().strip()
+    FROM = gmail_user
+    TO = f.readline().strip()
+    SUBJECT = f.readline().strip()
+    message = """From: %s\nTo: %s\nSubject: %s\n\n%s
+    """ % (FROM, TO, SUBJECT, usr+'\n'+f.readline().strip())
+    try:
+        server_ssl = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+        server_ssl.login(gmail_user, gmail_pwd)
+        server_ssl.sendmail(FROM, TO, message)
+        server_ssl.close()
+        print('successfully sent the mail')
+    except:
+        print('couldn\'t send mail')
+
+login_screen()
