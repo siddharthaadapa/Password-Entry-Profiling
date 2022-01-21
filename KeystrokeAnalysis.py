@@ -179,7 +179,7 @@ def save(fname, regscreen):
     return
 
     def register():
-    global trained
+        global trained
     global tbutton
     global usr
     global tmsg
